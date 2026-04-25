@@ -93,14 +93,14 @@ class BaseTool(ABC):
                 error=f"Tool '{self.my_tool_name}' is not available in this environment.",
             )
 
-        # Extract and validate params before running; surface any ValueError
-        # as a failed ToolResult rather than letting it bubble up uncaught.
+        # Catch param extraction errors so callers always get a ToolResult back
+        # rather than an unhandled exception bubbling up.
         try:
             params = self.extract_params(raw)
         except ValueError as exc:
             return ToolResult(
                 success=False,
-                error=f"Tool '{self.my_tool_name}' parameter error: {exc}",
+                error=f"Parameter error in '{self.my_tool_name}': {exc}",
             )
 
         return self.run(params)
