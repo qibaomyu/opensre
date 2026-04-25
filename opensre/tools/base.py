@@ -94,13 +94,13 @@ class BaseTool(ABC):
             )
 
         # Extract and validate params before running; surface any ValueError
-        # as a failed ToolResult instead of letting the exception propagate.
+        # as a failed ToolResult rather than letting it bubble up uncaught.
         try:
             params = self.extract_params(raw)
         except ValueError as exc:
             return ToolResult(
                 success=False,
-                error=f"Parameter error in '{self.my_tool_name}': {exc}",
+                error=f"Tool '{self.my_tool_name}' parameter error: {exc}",
             )
 
         return self.run(params)
