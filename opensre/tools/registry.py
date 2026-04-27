@@ -77,7 +77,8 @@ class ToolRegistry:
         """Return all registered tools whose is_available() check passes.
 
         Returns:
-            List of tool classes that report themselves as available.
+            List of tool classes that report themselves as available,
+            sorted by tool name for consistent ordering.
         """
         available = []
         for tool_cls in self._tools.values():
@@ -86,26 +87,13 @@ class ToolRegistry:
                     available.append(tool_cls)
             except Exception as exc:  # noqa: BLE001
                 logger.warning("is_available() raised for tool '%s': %s", tool_cls.name, exc)
-        return available
+        # Sort by name so the result order is deterministic regardless of registration order
+        return sorted(available, key=lambda cls: cls.name)
 
     def list_names(self) -> List[str]:
         """Return a sorted list of all registered tool names."""
         return sorted(self._tools.keys())
 
     def __len__(self) -> int:
+        """Return the number of registered tools."""
         return len(self._tools)
-
-    def __contains__(self, name: object) -> bool:
-        return name in self._tools
-
-    def __repr__(self) -> str:
-        return f"ToolRegistry(tools={self.list_names()})"
-
-
-# Module-level default registry instance shared across the application.
-default_registry = ToolRegistry()
-
-
-def register(tool_cls: Type[BaseTool]) -> Type[BaseTool]:
-    """Convenience decorator that registers a tool in the default registry."""
-    return default_registry.register(tool_cls)
